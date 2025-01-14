@@ -22,6 +22,7 @@
                 <thead class="table-dark">
                 <tr>
                     <th scope="col">Title</th>
+                    <th scope="col">Author</th>
                     <th scope="col">Description</th>
                     <th scope="col">Year</th>
                 </tr>
@@ -30,6 +31,7 @@
                 @foreach ($books as $book)
                     <tr id="book-{{ $book->id }}" class="book-row" data-book-id="{{ $book->id }}">
                         <td>{{ $book->title }}</td>
+                        <td>{{ $book->author ? $book->author->name : "No author, maybe you know him?" }}</td>
                         <td>{{ $book->description }}</td>
                         <td>{{ $book->publication_year }}</td>
                     </tr>
@@ -53,7 +55,6 @@
         </a>
     </div>
 
-    <!-- AJAX Delete Script -->
     <script>
         let currentBookId = null; // Переменная для хранения ID текущей книги
 
@@ -89,7 +90,6 @@
         // Обработчик клика по удалению
         document.getElementById('delete-book')?.addEventListener('click', function() {
             if (currentBookId) {
-                // if (confirm('Are you sure you want to delete this book?')) {
                     // Выполняем запрос AJAX для удаления
                     fetch(`/books/${currentBookId}`, {
                         method: 'DELETE',
@@ -98,21 +98,20 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}', // Передаем CSRF токен для защиты
                         },
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Удаляем книгу из таблицы
-                                let bookRow = document.getElementById('book-' + data.bookId);
-                                bookRow.remove();
-                            } else {
-                                alert('Error deleting book!');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('There was an error deleting the book.');
-                        });
-                // }
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Удаляем книгу из таблицы
+                            let bookRow = document.getElementById('book-' + data.bookId);
+                            bookRow.remove();
+                        } else {
+                            alert('Error deleting book!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('There was an error deleting the book.');
+                    });
             }
         });
     </script>

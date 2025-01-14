@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Author;
 use App\Models\Book;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,8 @@ class BookController extends Controller
 
     public function create()
     {
-        return view('books.create');
+        $authors = Author::all();
+        return view('books.create', compact('authors'));
     }
 
     public function store(Request $request)
@@ -23,8 +25,8 @@ class BookController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'author_id' => 'integer',
-            'publication_year' => 'required|integer|min:1900|max:' . date('Y'),
+            'author_id' => 'nullable|integer',
+            'publication_year' => 'required|integer|max:' . date('Y'),
         ]);
 
         Book::create($request->all());
@@ -33,7 +35,8 @@ class BookController extends Controller
 
     public function edit(Book $book)
     {
-        return view('books.edit', compact('book'));
+        $authors = Author::all();
+        return view('books.edit', compact('book', 'authors'));
     }
 
     public function update(Request $request, Book $book)
@@ -41,19 +44,14 @@ class BookController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'author_id' => 'integer',
-            'publication_year' => 'required|integer|min:1900|max:' . date('Y'),
+            'author_id' => 'nullable|integer',
+            'publication_year' => 'required|integer|max:' . date('Y'),
         ]);
 
         $book->update($request->all());
         return redirect()->route('books.index')->with('success', 'Book updated successfully!');
     }
 
-//    public function destroy(Book $book)
-//    {
-//        $book->delete();
-//        return redirect()->route('books.index')->with('success', 'Book deleted successfully!');
-//    }
     public function destroy($id)
     {
         $book = Book::find($id);
